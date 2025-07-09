@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Word Download</title>
+  <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
+</head>
+<body>
+
+  <h1>Word File Test</h1>
+  <button onclick="generateWord()">📄 Generate Word File</button>
+
+  <script>
+    async function generateWord() {
+      const { Document, Packer, Paragraph, TextRun } = docx;
+
+      const doc = new Document({
+        sections: [{
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun("This is a test Word document generated in the browser."),
+              ],
+            }),
+          ],
+        }],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'TestMemo.docx';
+      link.click();
+    }
+  </script>
+
+</body>
+</html>
