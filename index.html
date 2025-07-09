@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Memo Generator</title>
+    <title>Inspection Memo Generator</title>
     <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f5f5f5;
         }
         h1 {
             text-align: center;
         }
         .observation {
-            border: 1px solid #ccc;
+            background: #fff;
             padding: 15px;
-            margin-bottom: 15px;
             border-radius: 5px;
-            background-color: #f9f9f9;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         label {
             display: block;
@@ -27,34 +28,43 @@
             width: 100%;
             padding: 8px;
             margin-top: 5px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
         }
         button {
             margin-top: 15px;
-            padding: 10px 15px;
+            padding: 10px 20px;
             cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
-<h1>Memo Data Entry</h1>
+<h1>Inspection Memo Generator</h1>
 
 <div id="observations"></div>
 
-<button onclick="addObservation()">➕ Add New Line</button>
-<button onclick="generateWord()">📄 Generate Memo Word File</button>
+<button onclick="addObservation()">➕ Add Observation</button>
+<button onclick="generateWord()">📄 Generate Word File</button>
 
 <script>
     const { Document, Packer, Paragraph, TextRun } = docx;
     const container = document.getElementById('observations');
-    let counter = 0;
+    let count = 0;
 
     function addObservation() {
-        counter++;
+        count++;
         const div = document.createElement('div');
         div.className = 'observation';
         div.innerHTML = `
-            <h3>Line ${counter}</h3>
+            <h3>Observation ${count}</h3>
             <label>Date/Time: <input type="text" name="date"></label>
             <label>Inspected Area: <input type="text" name="area"></label>
             <label>Findings/Observations: <textarea name="findings"></textarea></label>
@@ -67,14 +77,17 @@
     async function generateWord() {
         const doc = new Document();
 
-        doc.addSection({
+        const intro = new Paragraph({
             children: [
-                new Paragraph("We would like to bring to your kind attention the below observations noted by our representative from the General Services Inspection during the above-mentioned period:"),
-                new Paragraph(""),
+                new TextRun("We would like to bring to your kind attention the below observations noted by our representative from the General Services Inspection during the above-mentioned period;"),
             ],
+            spacing: { after: 300 }
         });
 
+        doc.addSection({ children: [intro] });
+
         const observations = document.querySelectorAll('.observation');
+
         observations.forEach((obs, index) => {
             const date = obs.querySelector('input[name="date"]').value || 'N/A';
             const area = obs.querySelector('input[name="area"]').value || 'N/A';
@@ -95,25 +108,23 @@
             });
         });
 
-        doc.addSection({
-            children: [
-                new Paragraph("Kindly see the inspection photos attached for your easy reference."),
-                new Paragraph("We would appreciate your feedback on action/s taken regarding the above observations within five (05) days of receiving this memorandum."),
-                new Paragraph("Thank you for your usual cooperation."),
-                new Paragraph(""),
-                new Paragraph("Best Regards."),
-            ],
-        });
+        const outro = new Paragraph("Kindly see the inspection photos attached for your easy reference.");
+        const request = new Paragraph("We would appreciate your feedback on action/s taken regarding the above observations within five (05) days of receiving this memorandum.");
+        const closing = new Paragraph("Thank you for your usual cooperation.");
+        const regards = new Paragraph("Best Regards.");
+
+        doc.addSection({ children: [outro, request, closing, regards] });
 
         const blob = await Packer.toBlob(doc);
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Memo.docx';
-        a.click();
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'InspectionMemo.docx';
+        link.click();
     }
 
-    addObservation();  // Add initial observation by default
+    // Add first observation automatically
+    addObservation();
 </script>
 
 </body>
