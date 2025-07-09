@@ -88,7 +88,7 @@
         const observations = document.querySelectorAll('.observation');
 
         observations.forEach((obs, index) => {
-            const date = obs.querySelector('input[name="date"]').value || 'N/A';
+            const v = obs.querySelector('input[name="date"]').value || 'N/A';
             const area = obs.querySelector('input[name="area"]').value || 'N/A';
             const findings = obs.querySelector('textarea[name="findings"]').value || 'N/A';
             const photo = obs.querySelector('input[name="photo"]').value || 'N/A';
