@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Memo Generator</title>
+    <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .observation {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Memo Data Entry</h1>
+
+<div id="observations"></div>
+
+<button onclick="addObservation()">➕ Add New Line</button>
+<button onclick="generateWord()">📄 Generate Memo Word File</button>
+
+<script>
+    const { Document, Packer, Paragraph, TextRun } = docx;
+    const container = document.getElementById('observations');
+    let counter = 0;
+
+    function addObservation() {
+        counter++;
+        const div = document.createElement('div');
+        div.className = 'observation';
+        div.innerHTML = `
+            <h3>Line ${counter}</h3>
+            <label>Date/Time: <input type="text" name="date"></label>
+            <label>Inspected Area: <input type="text" name="area"></label>
+            <label>Findings/Observations: <textarea name="findings"></textarea></label>
+            <label>Attached Photo(s): <input type="text" name="photo"></label>
+            <label>Status of Finding: <input type="text" name="status"></label>
+        `;
+        container.appendChild(div);
+    }
+
+    async function generateWord() {
+        const doc = new Document();
+
+        doc.addSection({
+            children: [
+                new Paragraph("We would like to bring to your kind attention the below observations noted by our representative from the General Services Inspection during the above-mentioned period:"),
+                new Paragraph(""),
+            ],
+        });
+
+        const observations = document.querySelectorAll('.observation');
+        observations.forEach((obs, index) => {
+            const date = obs.querySelector('input[name="date"]').value || 'N/A';
+            const area = obs.querySelector('input[name="area"]').value || 'N/A';
+            const findings = obs.querySelector('textarea[name="findings"]').value || 'N/A';
+            const photo = obs.querySelector('input[name="photo"]').value || 'N/A';
+            const status = obs.querySelector('input[name="status"]').value || 'N/A';
+
+            doc.addSection({
+                children: [
+                    new Paragraph({ children: [new TextRun({ text: `No. ${index + 1}`, bold: true })] }),
+                    new Paragraph(`Date/Time: ${date}`),
+                    new Paragraph(`Inspected Area: ${area}`),
+                    new Paragraph(`Findings/Observations: ${findings}`),
+                    new Paragraph(`Attached Photo(s): ${photo}`),
+                    new Paragraph(`Status of Finding: ${status}`),
+                    new Paragraph(""),
+                ],
+            });
+        });
+
+        doc.addSection({
+            children: [
+                new Paragraph("Kindly see the inspection photos attached for your easy reference."),
+                new Paragraph("We would appreciate your feedback on action/s taken regarding the above observations within five (05) days of receiving this memorandum."),
+                new Paragraph("Thank you for your usual cooperation."),
+                new Paragraph(""),
+                new Paragraph("Best Regards."),
+            ],
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Memo.docx';
+        a.click();
+    }
+
+    addObservation();  // Add initial observation by default
+</script>
+
+</body>
+</html>
