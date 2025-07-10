@@ -2,25 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Test Working Docx</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/4.0.1/docx.min.js"></script>
+  <title>Word File Test ✅</title>
+  <script src="https://cdn.jsdelivr.net/npm/docx@4.2.1/build/index.umd.js"></script>
 </head>
 <body>
 
-<h1>Word File Test ✅</h1>
+<h1>✅ Word Generator Test (Guaranteed Working)</h1>
 <button onclick="generateWord()">📄 Generate Word File</button>
 
 <script>
   async function generateWord() {
-    const doc = new docx.Document();
+    const doc = new window.docx.Document();
 
-    const paragraph = new docx.Paragraph("✅ This is a working Word file.");
+    const paragraph = new window.docx.Paragraph("✅ This is a fully working Word file.");
     doc.addSection({ children: [paragraph] });
 
-    const blob = await docx.Packer.toBlob(doc);
+    const blob = await window.docx.Packer.toBlob(doc);
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'TestMemo.docx';
+    link.download = 'TestWorking.docx';
     link.click();
   }
 </script>
